@@ -1,11 +1,14 @@
 var gutil = require('gulp-util');
 
 var ElixirGroup = {
-	// task container, KV: taskName => taskFuncion()
-	tasks   : {},
+	tasks   : {}, // task container, KV: taskName => taskFuncion()
+	ignore  : {}, // tasks to ignore on "runAll"
 	// register task group.
-	register: function (taskName, taskFuncion) {
+	register: function (taskName, taskFuncion, ignore) {
 		this.tasks[taskName] = taskFuncion;
+		if (typeof ignore != 'undefined' && ignore) {
+			this.ignore[taskName] = true;
+		}
 		log('[Register Elixir Group] ', taskName);
 	},
 	// run task group.
@@ -20,7 +23,9 @@ var ElixirGroup = {
 	// run all task group.
 	runAll  : function () {
 		for (var taskName in this.tasks) {
-			this.run(taskName);
+			if (!this.ignore[taskName]) {
+				this.run(taskName);
+			}
 		}
 		this.finally();
 	},
@@ -50,6 +55,6 @@ ElixirGroup.start = function () {
 	if (!hasGroup) {
 		ElixirGroup.runAll();
 	}
-}
+};
 
 module.exports = ElixirGroup;
